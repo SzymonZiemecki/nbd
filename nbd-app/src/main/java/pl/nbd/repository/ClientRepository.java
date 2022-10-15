@@ -1,45 +1,51 @@
 package pl.nbd.repository;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.PersistenceContextType;
+import jakarta.persistence.*;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
+import pl.nbd.model.Address;
 import pl.nbd.model.Client;
+import pl.nbd.model.Client_;
 
 import javax.enterprise.inject.Produces;
+import java.util.List;
+import java.util.UUID;
 
-@Transactional
-public class ClientRepository implements JpaRepository<Client>{
-
-    @Produces
-    @PersistenceContext(unitName = "POSTGRES_RENT_PU", type = PersistenceContextType.EXTENDED)
-    EntityManager entityManager;
+public class ClientRepository extends JpaRepositoryImpl<Client> {
 
     public ClientRepository(EntityManager entityManager) {
-        this.entityManager = entityManager;
-    }
-
-    public ClientRepository() {
+        super(entityManager);
     }
 
     @Override
-    public Client persist(Client entity) {
-        entityManager.persist(entity);
-        return entity;
+    public Client findById(UUID id){
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Client> cq = cb.createQuery(Client.class);
+        Root<Client> client = cq.from(Client.class);
+
+        cq.select(client);
+        cq.where(cb.equal(client.get(Client_.UNIQUE_ID), id));
+
+        TypedQuery<Client> q = entityManager.createQuery(cq);
+        List<Client> clients = q.getResultList();
+
+        if(clients.isEmpty()) {
+            throw new EntityNotFoundException("Client not found for uniqueId: " + id);
+        }
+        return clients.get(0);
     }
 
     @Override
-    public void flush() {
-
+    public long size() {
+        return entityManager.createQuery("Select count(client) from Client client", Long.class).getSingleResult();
     }
 
     @Override
-    public Client update(Client entity) {
-        return null;
+    public List<Client> findAll(){
+        List<Client> clients = entityManager.createQuery("Select client from Client client", Client.class).getResultList();
+        return clients;
     }
 
-    @Override
-    public void delele(Client entity) {
-
-    }
 }

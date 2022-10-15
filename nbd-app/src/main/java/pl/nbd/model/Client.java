@@ -1,45 +1,26 @@
 package pl.nbd.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
+import org.javamoney.moneta.Money;
+import pl.nbd.converter.MoneyConverter;
 
 import java.util.UUID;
 
 @Entity
+@Table(name = "client")
 @Access(AccessType.FIELD)
-public class Client {
-
-    public Client(String name, String surname) {
-        this.name = name;
-        this.surname = surname;
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getSurname() {
-        return surname;
-    }
-
-    public void setSurname(String surname) {
-        this.surname = surname;
-    }
+@Getter
+@Setter
+@NoArgsConstructor
+@ToString
+public class Client extends AbstractEntity{
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    @Column(name = "client_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
 
     @Column
     private String name;
@@ -47,7 +28,20 @@ public class Client {
     @Column
     private String surname;
 
-    public Client() {
+    @NotNull
+    @JoinColumn(name = "address_id")
+    @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private Address address;
 
+    @NotNull
+    @Convert(converter = MoneyConverter.class)
+    @Column(name = "account_balance")
+    private Money accountBalance;
+
+    public Client(String name, String surname, Address address, Money accountBalance) {
+        this.name = name;
+        this.surname = surname;
+        this.address = address;
+        this.accountBalance = accountBalance;
     }
 }
