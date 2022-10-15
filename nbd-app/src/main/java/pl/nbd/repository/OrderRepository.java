@@ -36,11 +36,11 @@ public class OrderRepository extends JpaRepositoryImpl<Order> {
 
     @Override
     public long size() {
-        return entityManager.createQuery("Select count(order) from Order order", Long.class).getSingleResult();
+        return entityManager.createQuery("Select count(orders) from Order orders", Long.class).getSingleResult();
     }
 
     @Override
     public List<Order> findAll(){
-        return entityManager.createQuery("Select order from Order order", Order.class).getResultList();
+        return entityManager.createQuery("Select orders from Order orders", Order.class).getResultList();
     }
 }

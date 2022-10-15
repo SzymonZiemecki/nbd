@@ -7,11 +7,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.javamoney.moneta.Money;
-import pl.nbd.converter.ItemListConverter;
 import pl.nbd.converter.MoneyConverter;
 
 import java.util.List;
-import java.util.Map;
 
 @Entity
 @Table(name = "orders")
@@ -27,19 +25,18 @@ public class Order extends AbstractEntity {
     @Column(name = "order_id")
     private long id;
 
-    @OneToOne(cascade = CascadeType.MERGE)
+    @OneToOne(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "client_id", referencedColumnName = "client_id")
     private Client client;
 
-    @OneToOne(cascade = CascadeType.MERGE)
+    @OneToOne(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "address_id", referencedColumnName = "address_id")
     private Address shippingAddress;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(name = "order_items",
             joinColumns = {@JoinColumn(name = "order_id", referencedColumnName = "order_id")},
             inverseJoinColumns = {@JoinColumn(name = "item_id", referencedColumnName = "item_id")})
-    @MapKey(name = "name")
     private List<Item> orderItems;
 
     @NotNull

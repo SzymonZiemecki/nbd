@@ -8,8 +8,6 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 import pl.nbd.model.Address;
 import pl.nbd.model.Address_;
-import pl.nbd.model.Client;
-import pl.nbd.model.Client_;
 
 import java.util.List;
 import java.util.UUID;
