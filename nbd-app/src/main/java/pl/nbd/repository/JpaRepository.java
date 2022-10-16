@@ -7,11 +7,11 @@ public interface JpaRepository<T> {
 
     T findById(Long id);
 
-    void add(T entity);
+    T add(T entity);
 
     void remove(T entity);
 
-    void update(T entity);
+    T update(T entity);
 
     long size();
 

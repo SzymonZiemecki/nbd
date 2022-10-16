@@ -4,9 +4,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.javamoney.moneta.Money;
 import pl.nbd.model.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class EntityFactory {
     public static Address getAddres() {
@@ -27,10 +25,10 @@ public class EntityFactory {
                 getRandomNumber(2, 64));
     }
 
-    private static List<Item> getItems() {
-        List<Item> items = new ArrayList<>();
-        items.add(getLaptop());
-        items.add(getLaptop());
+    private static Map<Long, Item> getItems() {
+        Map<Long, Item> items =  new HashMap<>();
+        items.put((long) getRandomNumber(1,100), getLaptop());
+        items.put((long) getRandomNumber(1,100), getLaptop());
         return items;
     }
 

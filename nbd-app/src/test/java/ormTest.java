@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.nbd.EntityFactory.EntityFactory;
+import pl.nbd.manager.OrderManager;
 import pl.nbd.model.*;
 import pl.nbd.repository.AddressRepository;
 import pl.nbd.repository.ClientRepository;
@@ -136,5 +137,41 @@ public class ormTest {
         clients.forEach(client -> this.clientRepository.add(client));
         items.forEach(item -> this.itemRepository.add(item));
         orders.forEach(order -> this.orderRepository.add(order));
+    }
+
+    @Test
+    public void orderManagerPositiveTest() throws Exception {
+        OrderManager orderManager = new OrderManager(orderRepository,itemRepository,clientRepository);
+
+        Client client = new Client("Szymon", "Ziemecki", EntityFactory.getAddres(), Money.of(100, "PLN"));
+        Item item = itemRepository.add(new Laptop(2, "del", "del" ,"desc", Money.of(49, "PLN"), "cpu", 12, 12));
+        clientRepository.add(client);
+        Map<Long, Item> orderItems = new HashMap<>();
+        orderItems.put(2l, item);
+        Order order = orderManager.createOrder(client, client.getAddress(), orderItems);
+    }
+
+    @Test
+    public void orderManagerNegativeTest() throws Exception {
+        OrderManager orderManager = new OrderManager(orderRepository,itemRepository,clientRepository);
+
+        Client client = new Client("Szymon", "Ziemecki", EntityFactory.getAddres(), Money.of(100, "PLN"));
+        Item item = itemRepository.add(new Laptop(1, "del", "del" ,"desc", Money.of(49, "PLN"), "cpu", 12, 12));
+        clientRepository.add(client);
+        Map<Long, Item> orderItems = new HashMap<>();
+        orderItems.put(2l, item);
+        assertThrows(Exception.class, () -> orderManager.createOrder(client, client.getAddress(), orderItems));
+    }
+
+    @Test
+    public void orderManagerNegativeTest2() throws Exception {
+        OrderManager orderManager = new OrderManager(orderRepository,itemRepository,clientRepository);
+
+        Client client = new Client("Szymon", "Ziemecki", EntityFactory.getAddres(), Money.of(20, "PLN"));
+        Item item = itemRepository.add(new Laptop(2, "del", "del" ,"desc", Money.of(49, "PLN"), "cpu", 12, 12));
+        clientRepository.add(client);
+        Map<Long, Item> orderItems = new HashMap<>();
+        orderItems.put(2l, item);
+        assertThrows(Exception.class, () -> orderManager.createOrder(client, client.getAddress(), orderItems));
     }
 }

@@ -38,10 +38,14 @@ public class Client extends AbstractEntity{
     @Column(name = "account_balance")
     private Money accountBalance;
 
+    @NotNull
+    @Column(name = "is_suspended")
+    private boolean isSuspened;
     public Client(String name, String surname, Address address, Money accountBalance) {
         this.name = name;
         this.surname = surname;
         this.address = address;
         this.accountBalance = accountBalance;
+        this.isSuspened = false;
     }
 }

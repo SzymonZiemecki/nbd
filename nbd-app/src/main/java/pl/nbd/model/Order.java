@@ -10,6 +10,7 @@ import org.javamoney.moneta.Money;
 import pl.nbd.converter.MoneyConverter;
 
 import java.util.List;
+import java.util.Map;
 
 @Entity
 @Table(name = "orders")
@@ -33,11 +34,12 @@ public class Order extends AbstractEntity {
     @JoinColumn(name = "address_id", referencedColumnName = "address_id")
     private Address shippingAddress;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @OneToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(name = "order_items",
             joinColumns = {@JoinColumn(name = "order_id", referencedColumnName = "order_id")},
             inverseJoinColumns = {@JoinColumn(name = "item_id", referencedColumnName = "item_id")})
-    private List<Item> orderItems;
+    @MapKeyColumn(name = "quantity")
+    private Map<Long, Item> orderItems;
 
     @NotNull
     @Convert(converter = MoneyConverter.class)
@@ -47,7 +49,7 @@ public class Order extends AbstractEntity {
     @Column
     private boolean isPaid;
 
-    public Order(Client client, Address shippingAddress, List<Item> items, Money orderValue, boolean isPaid) {
+    public Order(Client client, Address shippingAddress, Map<Long, Item> items, Money orderValue, boolean isPaid) {
         this.client = client;
         this.shippingAddress = shippingAddress;
         this.orderItems = items;
