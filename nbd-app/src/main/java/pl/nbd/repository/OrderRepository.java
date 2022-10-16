@@ -17,21 +17,8 @@ public class OrderRepository extends JpaRepositoryImpl<Order> {
     }
 
     @Override
-    public Order findById(UUID id){
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Order> cq = cb.createQuery(Order.class);
-        Root<Order> order = cq.from(Order.class);
-
-        cq.select(order);
-        cq.where(cb.equal(order.get(Order_.UNIQUE_ID), id));
-
-        TypedQuery<Order> q = entityManager.createQuery(cq);
-        List<Order> orders = q.getResultList();
-
-        if(orders.isEmpty()) {
-            throw new EntityNotFoundException("Address not found for uniqueId: " + id);
-        }
-        return orders.get(0);
+    public Order findById(Long id){
+        return entityManager.find(Order.class, id);
     }
 
     @Override

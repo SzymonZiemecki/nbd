@@ -8,6 +8,7 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 import pl.nbd.model.Address;
 import pl.nbd.model.Address_;
+import pl.nbd.model.Client;
 
 import java.util.List;
 import java.util.UUID;
@@ -18,21 +19,8 @@ public class AddressRepository extends JpaRepositoryImpl<Address> {
     }
 
     @Override
-    public Address findById(UUID id){
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Address> cq = cb.createQuery(Address.class);
-        Root<Address> address = cq.from(Address.class);
-
-        cq.select(address);
-        cq.where(cb.equal(address.get(Address_.UNIQUE_ID), id));
-
-        TypedQuery<Address> q = entityManager.createQuery(cq);
-        List<Address> addresses = q.getResultList();
-
-        if(addresses.isEmpty()) {
-            throw new EntityNotFoundException("Address not found for uniqueId: " + id);
-        }
-        return addresses.get(0);
+    public Address findById(Long id){
+        return entityManager.find(Address.class, id);
     }
 
     @Override

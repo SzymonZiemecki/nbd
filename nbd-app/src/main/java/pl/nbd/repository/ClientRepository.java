@@ -20,21 +20,8 @@ public class ClientRepository extends JpaRepositoryImpl<Client> {
     }
 
     @Override
-    public Client findById(UUID id){
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Client> cq = cb.createQuery(Client.class);
-        Root<Client> client = cq.from(Client.class);
-
-        cq.select(client);
-        cq.where(cb.equal(client.get(Client_.UNIQUE_ID), id));
-
-        TypedQuery<Client> q = entityManager.createQuery(cq);
-        List<Client> clients = q.getResultList();
-
-        if(clients.isEmpty()) {
-            throw new EntityNotFoundException("Client not found for uniqueId: " + id);
-        }
-        return clients.get(0);
+    public Client findById(Long id){
+        return entityManager.find(Client.class, id);
     }
 
     @Override

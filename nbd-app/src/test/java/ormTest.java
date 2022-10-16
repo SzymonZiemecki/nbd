@@ -2,6 +2,7 @@ import jakarta.persistence.*;
 import org.javamoney.moneta.Money;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,9 +10,11 @@ import pl.nbd.EntityFactory.EntityFactory;
 import pl.nbd.model.*;
 import pl.nbd.repository.AddressRepository;
 import pl.nbd.repository.ClientRepository;
+import pl.nbd.repository.ItemRepository;
 import pl.nbd.repository.OrderRepository;
 
 
+import javax.money.MonetaryAmount;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -20,52 +23,39 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class ormTest {
 
     private static EntityManagerFactory emf;
+    private static EntityManager em;
     private static final Logger log = LoggerFactory.getLogger(ormTest.class);
 
-    @BeforeAll
-    static void beforeAll(){
+    private AddressRepository addressRepository;
+    private ClientRepository clientRepository;
+    private OrderRepository orderRepository;
+    private ItemRepository itemRepository;
+    @BeforeEach
+    void beofreEach(){
+        if(emf != null){
+            emf.close();
+        }
         emf = Persistence.createEntityManagerFactory("POSTGRES");
+        em = emf.createEntityManager();
+        this.addressRepository = new AddressRepository(em);
+        this.clientRepository = new ClientRepository(em);
+        this.orderRepository = new OrderRepository(em);
+        this.itemRepository = new ItemRepository(em);
     }
 
     @Test
     void testConnection() {
-        AddressRepository addressRepository = new AddressRepository(emf.createEntityManager());
-        ClientRepository clientRepository = new ClientRepository(emf.createEntityManager());
-        OrderRepository orderRepository = new OrderRepository(emf.createEntityManager());
-        Address address = new Address("Lodz", "Wroclawska", "3");
-        address.setUniqueId(UUID.randomUUID());
-        Client client = new Client("Szymonn", "Ziemecki", address, Money.of(12,"PLN"));
-        clientRepository.add(client);
-
-        UUID uuid = client.getUniqueId();
-        Client client2 = clientRepository.findById(uuid);
-        assertEquals(client, client2);
-
-        client.setName("newName");
-        clientRepository.update(client);
-
-        Address address2 = new Address("Lod3z", "Wroclawska", "3");
-        Client client3 = new Client("Szymonn", "Ziemecki", address2, Money.of(12,"PLN"));
-        List<Item> items = new ArrayList<>();
-        items.add(new Laptop(450, "komputo","hp","desc", Money.of(12,"PLN"), "cpu", 12,12));
-        items.add(new Laptop(450, "komputo2","hp","desc", Money.of(12,"PLN"), "cpu2", 12,12));
-        clientRepository.add(client3);
-        Order order = new Order(client3, address2, items, Money.of(12,"PLN"), false);
-        orderRepository.add(order);
 
     }
 
     @Test
     void optimisticLockTest() {
-        emf = Persistence.createEntityManagerFactory("POSTGRES");
-        AddressRepository addressRepository = new AddressRepository(emf.createEntityManager());
-        ClientRepository clientRepository = new ClientRepository(emf.createEntityManager());
         Address address = new Address("Lodz", "Wroclawska", "3");
         Client client = new Client("Szymonn", "Ziemecki", address, Money.of(12,"PLN"));
         clientRepository.add(client);
         Long id = client.getId();
 
-        Client found1 = emf.createEntityManager().find(Client.class, id);
+        Client found1 = clientRepository.findById(id);
         Client found2 = emf.createEntityManager().find(Client.class, id);
 
         found1.setName("zmiana");
@@ -78,9 +68,8 @@ public class ormTest {
 
     @Test
     void ClientRepositoryTest(){
-        ClientRepository clientRepository = new ClientRepository(emf.createEntityManager());
         Client client = EntityFactory.getClient();
-        UUID clientUUID = client.getUniqueId();
+        Long clientId = client.getId();
         clientRepository.add(client);
 
         assertEquals(clientRepository.size(), 1);
@@ -94,16 +83,19 @@ public class ormTest {
 
         clientRepository.remove(client);
         assertEquals(clientRepository.size(), 0);
-        assertThrows(EntityNotFoundException.class, () -> {
-            clientRepository.findById(clientUUID);
-        });
+        assertEquals(clientRepository.findById(clientId), null);
+
+        Client client2 = EntityFactory.getClient();
+        Client client3 = EntityFactory.getClient();
+        client3.setAddress(client2.getAddress());
+        clientRepository.add(client2);
+        clientRepository.add(client3);
     }
 
     @Test
     void OrderRepositoryTest(){
-        OrderRepository orderRepository = new OrderRepository(emf.createEntityManager());
         Order order = EntityFactory.getOrder();
-        UUID orderUUID = order.getUniqueId();
+        Long orderId = order.getId();
         orderRepository.add(order);
 
         assertEquals(orderRepository.size(), 1);
@@ -117,15 +109,32 @@ public class ormTest {
 
         orderRepository.remove(order);
         assertEquals(orderRepository.size(), 0);
-        assertThrows(EntityNotFoundException.class, () -> {
-            orderRepository.findById(orderUUID);
-        });
+        assertEquals(orderRepository.findById(orderId), null);
     }
 
-    @AfterAll
-    static void afterAll() {
-        if(emf != null){
-            emf.close();
-        }
+    @Test
+    void ItemRepositoryTest(){
+        Item item = EntityFactory.getLaptop();
+        Item item2 = EntityFactory.getLaptop();
+        Long itemId = item.getId();
+        itemRepository.add(item);
+
+        assertEquals(itemRepository.size(), 1);
+        assertEquals(item.getVersion(), 0);
+        itemRepository.add(item2);
+        assertEquals(itemRepository.findAll().size(), 2);
+    }
+
+    @Test
+    public void initDatabase(){
+        List<Address> addresses = Arrays.asList(EntityFactory.getAddres(),EntityFactory.getAddres(),EntityFactory.getAddres());
+        List<Client> clients = Arrays.asList(EntityFactory.getClient(),EntityFactory.getClient(),EntityFactory.getClient());
+        List<Item> items = Arrays.asList(EntityFactory.getLaptop(),EntityFactory.getLaptop(),EntityFactory.getLaptop());
+        List<Order> orders = Arrays.asList(EntityFactory.getOrder(),EntityFactory.getOrder(),EntityFactory.getOrder());
+
+        addresses.forEach(address -> this.addressRepository.add(address));
+        clients.forEach(client -> this.clientRepository.add(client));
+        items.forEach(item -> this.itemRepository.add(item));
+        orders.forEach(order -> this.orderRepository.add(order));
     }
 }

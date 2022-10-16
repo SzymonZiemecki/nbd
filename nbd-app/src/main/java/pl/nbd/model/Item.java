@@ -7,8 +7,10 @@ import lombok.Setter;
 import org.javamoney.moneta.Money;
 import pl.nbd.converter.MoneyConverter;
 
-@Entity(name="item")
+@Entity
+@Table(name = "item")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@Access(AccessType.FIELD)
 @DiscriminatorColumn(name="type")
 @Getter
 @Setter

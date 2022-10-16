@@ -5,7 +5,7 @@ import java.util.UUID;
 
 public interface JpaRepository<T> {
 
-    T findById(UUID id);
+    T findById(Long id);
 
     void add(T entity);
 

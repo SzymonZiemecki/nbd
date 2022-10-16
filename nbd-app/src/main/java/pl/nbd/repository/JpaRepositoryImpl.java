@@ -21,7 +21,7 @@ public abstract class JpaRepositoryImpl<T extends AbstractEntity> implements Jpa
     }
 
     @Override
-    public T findById(UUID id) {
+    public T findById(Long id) {
         return null;
     }
 
@@ -59,4 +59,5 @@ public abstract class JpaRepositoryImpl<T extends AbstractEntity> implements Jpa
     public List<T> findAll() {
         return null;
     }
+
 }
