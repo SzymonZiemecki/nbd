@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.CreationTimestamp;
 import org.javamoney.moneta.Money;
 import pl.nbd.converter.MoneyConverter;
 
@@ -49,12 +50,13 @@ public class Order extends AbstractEntity {
     private Money orderValue;
 
     @Column(name = "created_on")
+    @CreationTimestamp
     private Date createdOn;
 
-    @Column
+    @Column(name = "is_paid")
     private boolean isPaid;
 
-    @Column
+    @Column(name = "is_delivered")
     private boolean isDelivered;
 
     public Order(Client client, Address shippingAddress, Map<Long, Item> items, Money orderValue, boolean isPaid, boolean isDelivered) {

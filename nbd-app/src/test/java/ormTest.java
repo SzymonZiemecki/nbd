@@ -1,13 +1,11 @@
 import jakarta.persistence.*;
 import org.javamoney.moneta.Money;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.nbd.EntityFactory.EntityFactory;
-import pl.nbd.manager.OrderManager;
+import pl.nbd.manager.impl.OrderManagerImpl;
 import pl.nbd.model.*;
 import pl.nbd.repository.AddressRepository;
 import pl.nbd.repository.ClientRepository;
@@ -15,7 +13,6 @@ import pl.nbd.repository.ItemRepository;
 import pl.nbd.repository.OrderRepository;
 
 
-import javax.money.MonetaryAmount;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -70,7 +67,7 @@ public class ormTest {
 
     @Test
     void optimisticLockTestCreatingOrder() throws Exception {
-        OrderManager orderManager = new OrderManager(orderRepository,itemRepository,clientRepository);
+        OrderManagerImpl orderManager = new OrderManagerImpl(orderRepository,itemRepository,clientRepository);
 
         Client client = new Client("Szymon", "Ziemecki", EntityFactory.getAddres(), Money.of(200, "PLN"));
         Item item = itemRepository.add(new Laptop(4, "del", "del" ,"desc", Money.of(49, "PLN"), "cpu", 12, 12));
@@ -161,7 +158,7 @@ public class ormTest {
 
     @Test
     public void orderManagerPositiveTest() throws Exception {
-        OrderManager orderManager = new OrderManager(orderRepository,itemRepository,clientRepository);
+        OrderManagerImpl orderManager = new OrderManagerImpl(orderRepository,itemRepository,clientRepository);
 
         Client client = new Client("Szymon", "Ziemecki", EntityFactory.getAddres(), Money.of(100, "PLN"));
         Item item = itemRepository.add(new Laptop(2, "del", "del" ,"desc", Money.of(49, "PLN"), "cpu", 12, 12));
@@ -173,7 +170,7 @@ public class ormTest {
 
     @Test
     public void orderManagerNegativeTest() throws Exception {
-        OrderManager orderManager = new OrderManager(orderRepository,itemRepository,clientRepository);
+        OrderManagerImpl orderManager = new OrderManagerImpl(orderRepository,itemRepository,clientRepository);
 
         Client client = new Client("Szymon", "Ziemecki", EntityFactory.getAddres(), Money.of(100, "PLN"));
         Item item = itemRepository.add(new Laptop(1, "del", "del" ,"desc", Money.of(49, "PLN"), "cpu", 12, 12));
@@ -185,7 +182,7 @@ public class ormTest {
 
     @Test
     public void orderManagerNegativeTest2() throws Exception {
-        OrderManager orderManager = new OrderManager(orderRepository,itemRepository,clientRepository);
+        OrderManagerImpl orderManager = new OrderManagerImpl(orderRepository,itemRepository,clientRepository);
 
         Client client = new Client("Szymon", "Ziemecki", EntityFactory.getAddres(), Money.of(20, "PLN"));
         Item item = itemRepository.add(new Laptop(2, "del", "del" ,"desc", Money.of(49, "PLN"), "cpu", 12, 12));

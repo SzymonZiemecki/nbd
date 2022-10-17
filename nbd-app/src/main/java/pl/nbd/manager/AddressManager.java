@@ -1,35 +1,17 @@
 package pl.nbd.manager;
 
 import pl.nbd.model.Address;
-import pl.nbd.repository.AddressRepository;
 
 import java.util.List;
 
-public class AddressManager {
+public interface AddressManager {
+    public Address addAddress(Address address);
 
-    private AddressRepository addressRepository;
+    public Address updateAddress(Address address);
 
-    public AddressManager(AddressRepository addressRepository) {
-        this.addressRepository = addressRepository;
-    }
+    public void deleteAddress(Address address);
 
-    public Address addAddress(Address address) {
-        return addressRepository.add(address);
-    }
+    public List<Address> findAllAddresses();
 
-    public Address updateAddress(Address address){
-        return addressRepository.update(address);
-    }
-
-    public void deleteAddress(Address address) {
-        addressRepository.remove(address);
-    }
-
-    public List<Address> findAllAddresses(){
-        return addressRepository.findAll();
-    }
-
-    public Address findAddressById(Long id){
-        return addressRepository.findById(id);
-    }
+    public Address findAddressById(Long id);
 }
