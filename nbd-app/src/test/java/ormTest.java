@@ -25,6 +25,7 @@ public class ormTest {
 
     private static EntityManagerFactory emf;
     private static EntityManager em;
+
     private static final Logger log = LoggerFactory.getLogger(ormTest.class);
 
     private AddressRepository addressRepository;
@@ -68,6 +69,25 @@ public class ormTest {
     }
 
     @Test
+    void optimisticLockTestCreatingOrder() throws Exception {
+        OrderManager orderManager = new OrderManager(orderRepository,itemRepository,clientRepository);
+
+        Client client = new Client("Szymon", "Ziemecki", EntityFactory.getAddres(), Money.of(200, "PLN"));
+        Item item = itemRepository.add(new Laptop(4, "del", "del" ,"desc", Money.of(49, "PLN"), "cpu", 12, 12));
+        clientRepository.add(client);
+        Map<Long, Item> orderItems = new HashMap<>();
+        Item item1 = itemRepository.findById(1l);
+        Item item2 = emf.createEntityManager().find(Item.class, item.getId());
+        item1.setAvailableAmount(0);
+        item1.setProducer("test");
+        itemRepository.update(item1);
+        orderItems.put(2l, item2);
+        assertThrows(OptimisticLockException.class, () -> {
+            orderManager.createOrder(client, client.getAddress(), orderItems);
+        });
+    }
+
+    @Test
     void ClientRepositoryTest(){
         Client client = EntityFactory.getClient();
         Long clientId = client.getId();
@@ -102,11 +122,11 @@ public class ormTest {
         assertEquals(orderRepository.size(), 1);
         assertEquals(order.getVersion(), 0);
 
-        order.setPaid(true);
+        order.setPaid(false);
         orderRepository.update(order);
         assertEquals(orderRepository.size(), 1);
         assertEquals(order.getVersion(), 1);
-        assertEquals(order.isPaid(), true);
+        assertEquals(order.isPaid(), false);
 
         orderRepository.remove(order);
         assertEquals(orderRepository.size(), 0);

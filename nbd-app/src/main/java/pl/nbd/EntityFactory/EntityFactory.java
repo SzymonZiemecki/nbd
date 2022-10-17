@@ -25,15 +25,25 @@ public class EntityFactory {
                 getRandomNumber(2, 64));
     }
 
+    public static Monitor getMonitor() {
+        return new Monitor(getRandomNumber(10, 1000),
+                generateRandomString(10),
+                generateRandomString(10),
+                generateRandomString(10), generateMoney(),
+                generateRandomString(10),
+                generateRandomString(10),
+                generateRandomString(10));
+    }
+
     private static Map<Long, Item> getItems() {
         Map<Long, Item> items =  new HashMap<>();
         items.put((long) getRandomNumber(1,100), getLaptop());
-        items.put((long) getRandomNumber(1,100), getLaptop());
+        items.put((long) getRandomNumber(1,100), getMonitor());
         return items;
     }
 
     public static Order getOrder() {
-        return new Order(getClient(), getAddres(), getItems(), generateMoney(), false);
+        return new Order(getClient(), getAddres(), getItems(), generateMoney(), true, false);
     }
 
     private static String generateRandomString(int length) {

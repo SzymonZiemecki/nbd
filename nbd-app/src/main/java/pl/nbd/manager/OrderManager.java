@@ -1,6 +1,5 @@
 package pl.nbd.manager;
 
-import jakarta.transaction.Transactional;
 import org.javamoney.moneta.Money;
 import pl.nbd.model.Address;
 import pl.nbd.model.Client;
@@ -11,8 +10,11 @@ import pl.nbd.repository.ItemRepository;
 import pl.nbd.repository.OrderRepository;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class OrderManager {
 
@@ -26,31 +28,48 @@ public class OrderManager {
         this.clientRepository = clientRepository;
     }
 
-    @Transactional
     public Order createOrder(Client client, Address orderAddress, Map<Long, Item> items) throws Exception {
+        Client contextClient = clientRepository.findById(client.getId());
         Money clientAccountBalance = client.getAccountBalance();
-        Money orderValue = Money.of(0, "PLN");
-        List<Item> updatedItems = new ArrayList<>();
+        Money orderValue = calculateOrderValue(items);
 
-        items.forEach((key, value) -> {
-            Item foundItem = itemRepository.findById(value.getId());
-            foundItem.setAvailableAmount(foundItem.getAvailableAmount() - key);
-            updatedItems.add(foundItem);
-        });
+        if (isEnoughItems(items)
+            && clientAccountBalance.subtract(orderValue).isGreaterThanOrEqualTo(Money.of(0, "PLN"))
+            && !client.isSuspened()) {
+            Map<Long, Item> processedItems = processItems(items);
+            processedItems.values().forEach(item -> itemRepository.update(item));
+            contextClient.setAccountBalance(contextClient.getAccountBalance().subtract(orderValue));
+            clientRepository.update(contextClient);
+            return orderRepository.add(new Order(client, client.getAddress(),processedItems,orderValue,true,false));
 
-        for (Item item : items.values()) {
-            orderValue = orderValue.add(item.getPrice());
-            if(item.getAvailableAmount() < 0){
-                throw new Exception("failed to create order, violated business logic - items out of stock");
-            }
-        }
-
-        clientAccountBalance = clientAccountBalance.subtract(orderValue);
-        if (clientAccountBalance.isGreaterThanOrEqualTo(Money.of(0, "PLN"))) {
-            updatedItems.forEach( item -> itemRepository.update(item));
-            return orderRepository.add(new Order(client, orderAddress, items, orderValue, true));
         } else {
-            throw new Exception("failed to create order, violated business logic - client doesnt have enough money");
+            throw new Exception("failed to create order, violated business logic");
         }
+    }
+
+    private Money calculateOrderValue(Map<Long, Item> items) {
+        AtomicReference<Money> orderValue = new AtomicReference<>(Money.of(0, "PLN"));
+        items.forEach((key, value) -> {
+            orderValue.set(orderValue.get().add(value.getPrice().multiply(key)));
+        });
+        return orderValue.get();
+    }
+
+    private boolean isEnoughItems(Map<Long, Item> items) {
+        AtomicBoolean flag = new AtomicBoolean(true);
+        items.forEach((key, value) -> {
+            if (value.getAvailableAmount() - key < 0)
+                flag.set(false);
+        });
+        return flag.get();
+    }
+
+    private Map<Long, Item> processItems(Map<Long, Item> items) {
+        Map<Long, Item> updatedItems = new HashMap<>();
+        items.forEach((key, value) -> {
+            value.setAvailableAmount(value.getAvailableAmount() - key);
+            updatedItems.put(key, value);
+        });
+        return updatedItems;
     }
 }

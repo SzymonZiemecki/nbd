@@ -1,6 +1,7 @@
 package pl.nbd.model;
 
 import jakarta.persistence.*;
+import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,6 +10,7 @@ import lombok.ToString;
 import org.javamoney.moneta.Money;
 import pl.nbd.converter.MoneyConverter;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -22,7 +24,7 @@ import java.util.Map;
 public class Order extends AbstractEntity {
 
     @Id
-    @GeneratedValue(strategy =  GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "order_id")
     private long id;
 
@@ -34,7 +36,7 @@ public class Order extends AbstractEntity {
     @JoinColumn(name = "address_id", referencedColumnName = "address_id")
     private Address shippingAddress;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "order_items",
             joinColumns = {@JoinColumn(name = "order_id", referencedColumnName = "order_id")},
             inverseJoinColumns = {@JoinColumn(name = "item_id", referencedColumnName = "item_id")})
@@ -46,15 +48,22 @@ public class Order extends AbstractEntity {
     @Column(name = "order_value")
     private Money orderValue;
 
+    @Column(name = "created_on")
+    private Date createdOn;
+
     @Column
     private boolean isPaid;
 
-    public Order(Client client, Address shippingAddress, Map<Long, Item> items, Money orderValue, boolean isPaid) {
+    @Column
+    private boolean isDelivered;
+
+    public Order(Client client, Address shippingAddress, Map<Long, Item> items, Money orderValue, boolean isPaid, boolean isDelivered) {
         this.client = client;
         this.shippingAddress = shippingAddress;
         this.orderItems = items;
         this.orderValue = orderValue;
         this.isPaid = isPaid;
+        this.isDelivered = isDelivered;
     }
 
 }
