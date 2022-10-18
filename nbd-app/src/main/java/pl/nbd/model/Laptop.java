@@ -1,10 +1,7 @@
 package pl.nbd.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.javamoney.moneta.Money;
 
 @Entity
@@ -13,21 +10,22 @@ import org.javamoney.moneta.Money;
 @Getter
 @Setter
 @NoArgsConstructor
+@ToString
 public class Laptop extends Item{
 
     @Column
     private String cpu;
 
-    @Column
-    private long ramAmmount;
+    @Column(name = "ram_amount")
+    private long ramAmount;
 
-    @Column
+    @Column(name = "memory_amount")
     private long memoryAmount;
 
     public Laptop(long availableAmount, String name, String producer, String description, Money price, String cpu, long ramAmmount, long memoryAmount) {
         super(availableAmount, name, producer, description, price);
         this.cpu = cpu;
-        this.ramAmmount = ramAmmount;
+        this.ramAmount = ramAmmount;
         this.memoryAmount = memoryAmount;
     }
 }

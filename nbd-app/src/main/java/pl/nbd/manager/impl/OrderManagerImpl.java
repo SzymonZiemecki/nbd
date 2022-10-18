@@ -1,5 +1,6 @@
 package pl.nbd.manager.impl;
 
+import jakarta.transaction.Transactional;
 import org.javamoney.moneta.Money;
 import pl.nbd.manager.OrderManager;
 import pl.nbd.model.Address;
@@ -30,21 +31,32 @@ public class OrderManagerImpl implements OrderManager {
     @Override
     public Order createOrder(Client client, Address orderAddress, Map<Long, Item> items) throws Exception {
         Client contextClient = clientRepository.findById(client.getId());
-        Money clientAccountBalance = client.getAccountBalance();
+        Money clientAccountBalance = contextClient.getAccountBalance();
         Money orderValue = calculateOrderValue(items);
 
         if (isEnoughItems(items)
             && clientAccountBalance.subtract(orderValue).isGreaterThanOrEqualTo(Money.of(0, "PLN"))
-            && !client.isSuspened()) {
+            && !contextClient.isSuspened()) {
             Map<Long, Item> processedItems = processItems(items);
             processedItems.values().forEach(item -> itemRepository.update(item));
             contextClient.setAccountBalance(contextClient.getAccountBalance().subtract(orderValue));
             clientRepository.update(contextClient);
-            return orderRepository.add(new Order(client, client.getAddress(),processedItems,orderValue,true,false));
+            return orderRepository.add(new Order(contextClient, contextClient.getAddress(),processedItems,orderValue,true,false));
 
         } else {
             throw new Exception("failed to create order, violated business logic");
         }
+    }
+    @Override
+    public String report(Long orderId){
+        return orderRepository.findById(orderId).toString();
+    }
+
+    @Override
+    public void deliverOrder(Long id) {
+        Order order = orderRepository.findById(id);
+        order.setDelivered(true);
+        orderRepository.update(order);
     }
 
     private Money calculateOrderValue(Map<Long, Item> items) {
@@ -68,6 +80,11 @@ public class OrderManagerImpl implements OrderManager {
         Map<Long, Item> updatedItems = new HashMap<>();
         items.forEach((key, value) -> {
             value.setAvailableAmount(value.getAvailableAmount() - key);
+            if (value.getAvailableAmount() > 0) {
+                value.setAvailable(true);
+            } else {
+                value.setAvailable(false);
+            }
             updatedItems.put(key, value);
         });
         return updatedItems;

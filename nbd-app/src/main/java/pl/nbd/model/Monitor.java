@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.javamoney.moneta.Money;
 
 @Entity
@@ -12,6 +13,7 @@ import org.javamoney.moneta.Money;
 @Getter
 @Setter
 @NoArgsConstructor
+@ToString
 public class Monitor extends Item {
     @Column
     private String resolution;

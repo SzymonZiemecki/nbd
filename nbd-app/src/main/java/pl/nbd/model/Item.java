@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.javamoney.moneta.Money;
 import pl.nbd.converter.MoneyConverter;
 
@@ -14,6 +15,7 @@ import pl.nbd.converter.MoneyConverter;
 @DiscriminatorColumn(name="type")
 @Getter
 @Setter
+@ToString
 public abstract class Item extends AbstractEntity{
 
     @Id
@@ -38,12 +40,20 @@ public abstract class Item extends AbstractEntity{
     @Column(name = "price")
     private Money price;
 
+    @Column(name = "is_available")
+    private boolean available;
+
     public Item(long availableAmount, String name, String producer, String description, Money price) {
         this.availableAmount = availableAmount;
         this.name = name;
         this.producer = producer;
         this.description = description;
         this.price = price;
+        if (this.availableAmount > 0) {
+            setAvailable(true);
+        } else {
+            setAvailable(false);
+        }
     }
 
     public Item() {

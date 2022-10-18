@@ -7,14 +7,14 @@ import java.util.List;
 
 public interface ItemManager {
 
-    public Item addItem(Item item);
+    Item addItem(Item item);
 
-    public Item updateItem(Item item);
+    Item updateItem(Item item);
 
-    public void deleteItem(Item item);
+    void deleteItem(Item item);
 
-    public List<Item> findAllAddresses();
+    List<Item> findAllItems();
 
-    public Item findItemById(Long id);
+    Item findItemById(Long id);
 
 }

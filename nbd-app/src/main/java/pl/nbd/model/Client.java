@@ -15,6 +15,10 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @ToString
+@NamedQuery(
+        name="findAllClientByName",
+        query="SELECT c FROM Client c WHERE c.name = :name"
+)
 public class Client extends AbstractEntity{
 
     @Id

@@ -9,5 +9,9 @@ import pl.nbd.model.Order;
 import java.util.Map;
 
 public interface OrderManager {
-    public Order createOrder(Client client, Address orderAddress, Map<Long, Item> items) throws Exception;
+    Order createOrder(Client client, Address orderAddress, Map<Long, Item> items) throws Exception;
+
+    String report(Long orderId);
+
+    void deliverOrder(Long id);
 }

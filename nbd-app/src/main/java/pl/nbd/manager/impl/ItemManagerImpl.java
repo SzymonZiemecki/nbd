@@ -29,7 +29,7 @@ public class ItemManagerImpl implements ItemManager {
     }
 
     @Override
-    public List<Item> findAllAddresses(){
+    public List<Item> findAllItems(){
         return itemRepository.findAll();
     }
 

@@ -1,17 +1,22 @@
 package pl.nbd.manager;
 
 import pl.nbd.model.Client;
+import pl.nbd.model.Order;
 
 import java.util.List;
 
 public interface ClientManager {
-    public Client addClient(Client client);
+    Client addClient(Client client);
 
-    public Client updateAddress(Client client);
+    Client updateClient(Client client);
 
-    public void deleteAddress(Client client);
+    void deleteClient(Client client);
 
-    public List<Client> findAllAddresses();
+    List<Client> findAllClients();
 
-    public Client findAddressById(Long id);
+    Client findClientsById(Long id);
+
+    List<Client> findByClientsByName(String name);
+
+    List<Order> findClientOrders(Long id);
 }

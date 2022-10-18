@@ -4,14 +4,12 @@ import jakarta.persistence.*;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
-import jakarta.transaction.Transactional;
-import pl.nbd.model.Address;
 import pl.nbd.model.Client;
 import pl.nbd.model.Client_;
+import pl.nbd.model.Order;
+import pl.nbd.model.Order_;
 
-import javax.enterprise.inject.Produces;
 import java.util.List;
-import java.util.UUID;
 
 public class ClientRepository extends JpaRepositoryImpl<Client> {
 
@@ -33,6 +31,29 @@ public class ClientRepository extends JpaRepositoryImpl<Client> {
     public List<Client> findAll(){
         List<Client> clients = entityManager.createQuery("Select client from Client client", Client.class).getResultList();
         return clients;
+    }
+    public List<Client> findClientByName(String name){
+        TypedQuery<Client> query =
+                entityManager.createNamedQuery("findAllClientByName", Client.class);
+        query.setParameter("name", name);
+        return query.getResultList();
+    }
+
+    public List<Order> findClientOrders(Client client){
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Order> cq = cb.createQuery(Order.class);
+        Root<Order> order = cq.from(Order.class);
+
+        cq.select(order);
+        cq.where(cb.equal(order.get(Order_.CLIENT), client));
+
+        TypedQuery<Order> q = entityManager.createQuery(cq);
+        List<Order> orders = q.getResultList();
+
+        if(orders.isEmpty()) {
+            throw new EntityNotFoundException("Orders not found for client: " + client);
+        }
+        return orders;
     }
 
 }

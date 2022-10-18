@@ -5,13 +5,13 @@ import pl.nbd.model.Address;
 import java.util.List;
 
 public interface AddressManager {
-    public Address addAddress(Address address);
+    Address addAddress(Address address);
 
-    public Address updateAddress(Address address);
+    Address updateAddress(Address address);
 
-    public void deleteAddress(Address address);
+    void deleteAddress(Address address);
 
-    public List<Address> findAllAddresses();
+    List<Address> findAllAddresses();
 
-    public Address findAddressById(Long id);
+    Address findAddressById(Long id);
 }

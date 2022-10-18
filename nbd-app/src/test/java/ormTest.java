@@ -98,10 +98,12 @@ public class ormTest {
         assertEquals(clientRepository.size(), 1);
         assertEquals(client.getVersion(), 1);
         assertEquals(client.getName(), "newName");
+        assertEquals(clientRepository.findClientByName("newName").size(),1);
 
         clientRepository.remove(client);
         assertEquals(clientRepository.size(), 0);
         assertEquals(clientRepository.findById(clientId), null);
+
 
         Client client2 = EntityFactory.getClient();
         Client client3 = EntityFactory.getClient();
@@ -111,9 +113,18 @@ public class ormTest {
     }
 
     @Test
+    void clientRepositoryCustomQueryTest(){
+        initDatabase();
+        List<Order> orders = clientRepository.findClientOrders(clientRepository.findById(1l));
+        assertEquals(orders.size(), 3);
+    }
+    @Test
     void OrderRepositoryTest(){
         Order order = EntityFactory.getOrder();
         Long orderId = order.getId();
+        clientRepository.add(order.getClient());
+        order.getOrderItems().values().forEach(item -> itemRepository.add(item));
+        addressRepository.add(order.getShippingAddress());
         orderRepository.add(order);
 
         assertEquals(orderRepository.size(), 1);
@@ -153,7 +164,13 @@ public class ormTest {
         addresses.forEach(address -> this.addressRepository.add(address));
         clients.forEach(client -> this.clientRepository.add(client));
         items.forEach(item -> this.itemRepository.add(item));
-        orders.forEach(order -> this.orderRepository.add(order));
+        orders.forEach(order -> {
+            order.setClient(clients.get(0));
+            order.getOrderItems().values().forEach(item -> itemRepository.add(item));
+            this.addressRepository.add(order.getShippingAddress());
+            this.clientRepository.add(order.getClient());
+            this.orderRepository.add(order);
+        });
     }
 
     @Test
@@ -161,11 +178,15 @@ public class ormTest {
         OrderManagerImpl orderManager = new OrderManagerImpl(orderRepository,itemRepository,clientRepository);
 
         Client client = new Client("Szymon", "Ziemecki", EntityFactory.getAddres(), Money.of(100, "PLN"));
-        Item item = itemRepository.add(new Laptop(2, "del", "del" ,"desc", Money.of(49, "PLN"), "cpu", 12, 12));
+        Item item = itemRepository.add(new Laptop(3, "del", "del" ,"desc", Money.of(49, "PLN"), "cpu", 12, 12));
         clientRepository.add(client);
         Map<Long, Item> orderItems = new HashMap<>();
         orderItems.put(2l, item);
         Order order = orderManager.createOrder(client, client.getAddress(), orderItems);
+        assertEquals(orderRepository.findById(order.getId()).isDelivered(), false);
+        orderManager.deliverOrder(order.getId());
+        assertEquals(orderRepository.findById(order.getId()).isDelivered(), true);
+        assertEquals(orderRepository.findAll().size(), 1);
     }
 
     @Test

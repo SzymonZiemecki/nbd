@@ -7,7 +7,6 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 import pl.nbd.model.Address;
-import pl.nbd.model.Address_;
 import pl.nbd.model.Client;
 
 import java.util.List;

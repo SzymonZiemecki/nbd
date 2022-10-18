@@ -2,6 +2,7 @@ package pl.nbd.manager.impl;
 
 import pl.nbd.manager.ClientManager;
 import pl.nbd.model.Client;
+import pl.nbd.model.Order;
 import pl.nbd.repository.AddressRepository;
 import pl.nbd.repository.ClientRepository;
 
@@ -22,22 +23,32 @@ public class ClientManagerImpl implements ClientManager {
     }
 
     @Override
-    public Client updateAddress(Client client){
+    public Client updateClient(Client client){
         return clientRepository.update(client);
     }
 
     @Override
-    public void deleteAddress(Client client) {
+    public void deleteClient(Client client) {
         clientRepository.remove(client);
     }
 
     @Override
-    public List<Client> findAllAddresses(){
+    public List<Client> findAllClients(){
         return clientRepository.findAll();
     }
 
     @Override
-    public Client findAddressById(Long id){
+    public Client findClientsById(Long id){
         return clientRepository.findById(id);
+    }
+
+    @Override
+    public List<Client> findByClientsByName(String name) {
+        return clientRepository.findClientByName(name);
+    }
+
+    @Override
+    public List<Order> findClientOrders(Long id) {
+        return clientRepository.findClientOrders(clientRepository.findById(id));
     }
 }
