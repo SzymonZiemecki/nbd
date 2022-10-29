@@ -1,3 +1,4 @@
+/*
 package pl.nbd.EntityFactory;
 
 import org.apache.commons.lang3.RandomStringUtils;
@@ -62,3 +63,4 @@ public class EntityFactory {
         return random.nextInt(max - min) + min;
     }
 }
+*/

@@ -1,7 +1,6 @@
 package pl.nbd.manager;
 
-import pl.nbd.model.Item;
-import pl.nbd.repository.ItemRepository;
+import pl.nbd.model.domain.Item;
 
 import java.util.List;
 

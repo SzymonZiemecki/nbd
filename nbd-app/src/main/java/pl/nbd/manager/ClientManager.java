@@ -1,7 +1,7 @@
 package pl.nbd.manager;
 
-import pl.nbd.model.Client;
-import pl.nbd.model.Order;
+import pl.nbd.model.domain.Client;
+import pl.nbd.model.domain.Order;
 
 import java.util.List;
 

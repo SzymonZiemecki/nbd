@@ -1,9 +1,8 @@
 package pl.nbd.repository;
 
 import java.util.List;
-import java.util.UUID;
 
-public interface JpaRepository<T> {
+public interface MongoRepository<T> extends AutoCloseable {
 
     T findById(Long id);
 

@@ -1,6 +1,6 @@
 package pl.nbd.manager;
 
-import pl.nbd.model.Address;
+import pl.nbd.model.domain.Address;
 
 import java.util.List;
 
