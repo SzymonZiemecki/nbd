@@ -3,6 +3,8 @@ package pl.nbd.manager;
 import pl.nbd.model.domain.Item;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 public interface ItemManager {
 
@@ -14,6 +16,6 @@ public interface ItemManager {
 
     List<Item> findAllItems();
 
-    Item findItemById(Long id);
+    Optional<Item> findItemById(UUID id);
 
 }

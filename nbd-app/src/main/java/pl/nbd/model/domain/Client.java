@@ -1,6 +1,7 @@
 package pl.nbd.model.domain;
 
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.bson.codecs.pojo.annotations.BsonCreator;
 import org.bson.codecs.pojo.annotations.BsonProperty;
 
@@ -10,6 +11,7 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @ToString
+@SuperBuilder
 public class Client extends AbstractEntity {
     private String name;
 
@@ -17,12 +19,12 @@ public class Client extends AbstractEntity {
 
     private Address address;
 
-    private Long accountBalance;
+    private Double accountBalance;
 
     private boolean isSuspened;
 
 
-    public Client(UUID uniqueId, String name, String surname, Address address, Long accountBalance, boolean isSuspened) {
+    public Client(UUID uniqueId, String name, String surname, Address address, Double accountBalance, boolean isSuspened) {
         super(uniqueId);
         this.name = name;
         this.surname = surname;
@@ -31,7 +33,7 @@ public class Client extends AbstractEntity {
         this.isSuspened = isSuspened;
     }
 
-    public Client(String name, String surname, Address address, Long accountBalance, boolean isSuspened) {
+    public Client(String name, String surname, Address address, Double accountBalance, boolean isSuspened) {
         this.name = name;
         this.surname = surname;
         this.address = address;

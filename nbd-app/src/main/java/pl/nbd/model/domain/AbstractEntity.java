@@ -1,9 +1,7 @@
 package pl.nbd.model.domain;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.io.Serializable;
 import java.util.UUID;
@@ -12,6 +10,7 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@SuperBuilder
 public abstract class AbstractEntity implements Serializable {
-    protected UUID uniqueId = UUID.randomUUID();
+    protected UUID uniqueId;
 }

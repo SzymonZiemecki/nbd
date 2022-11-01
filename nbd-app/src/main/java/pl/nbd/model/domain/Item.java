@@ -2,10 +2,8 @@ package pl.nbd.model.domain;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.javamoney.moneta.Money;
 
 import java.util.UUID;
@@ -14,6 +12,7 @@ import java.util.UUID;
 @Setter
 @ToString
 @NoArgsConstructor
+@SuperBuilder
 public abstract class Item extends AbstractEntity {
     private long availableAmount;
 
@@ -23,18 +22,16 @@ public abstract class Item extends AbstractEntity {
 
     private String description;
 
-    private Money price;
+    private Double price;
 
-    private boolean available;
+    private Boolean available;
 
-    public Item(UUID uniqueId, long availableAmount, String name, String producer, String description, Money price, boolean available) {
-        super(uniqueId);
+    public Item(long availableAmount, String name, String producer, String description, Double price) {
         this.availableAmount = availableAmount;
         this.name = name;
         this.producer = producer;
         this.description = description;
         this.price = price;
-        this.available = available;
     }
 
 }

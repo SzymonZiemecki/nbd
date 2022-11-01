@@ -4,6 +4,8 @@ import pl.nbd.model.domain.Client;
 import pl.nbd.model.domain.Order;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 public interface ClientManager {
     Client addClient(Client client);
@@ -14,9 +16,9 @@ public interface ClientManager {
 
     List<Client> findAllClients();
 
-    Client findClientsById(Long id);
+    Optional<Client> findClientsById(UUID id);
 
-    List<Client> findByClientsByName(String name);
+/*    List<Client> findByClientsByName(String name);
 
-    List<Order> findClientOrders(Long id);
+    List<Order> findClientOrders(UUID id);*/
 }

@@ -1,10 +1,8 @@
 package pl.nbd.model.domain;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.javamoney.moneta.Money;
 
 import java.util.UUID;
@@ -13,6 +11,7 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @ToString
+@SuperBuilder
 public class Monitor extends Item {
     private String resolution;
 
@@ -26,8 +25,8 @@ public class Monitor extends Item {
         this.diagonal = diagonal;
     }
 
-    public Monitor(UUID uniqueId, long availableAmount, String name, String producer, String description, Money price, boolean available, String resolution, String panel, String diagonal) {
-        super(uniqueId, availableAmount, name, producer, description, price, available);
+    public Monitor(long availableAmount, String name, String producer, String description, Double price, String resolution, String panel, String diagonal) {
+        super(availableAmount, name, producer, description, price);
         this.resolution = resolution;
         this.panel = panel;
         this.diagonal = diagonal;

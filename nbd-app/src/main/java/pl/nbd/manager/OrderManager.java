@@ -6,11 +6,12 @@ import pl.nbd.model.domain.Item;
 import pl.nbd.model.domain.Order;
 
 import java.util.Map;
+import java.util.UUID;
 
 public interface OrderManager {
     Order createOrder(Client client, Address orderAddress, Map<Long, Item> items) throws Exception;
 
-    String report(Long orderId);
+    String report(UUID orderId);
 
-    void deliverOrder(Long id);
+    void deliverOrder(UUID id);
 }

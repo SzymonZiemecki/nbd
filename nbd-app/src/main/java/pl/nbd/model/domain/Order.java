@@ -2,10 +2,8 @@ package pl.nbd.model.domain;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.CreationTimestamp;
 import org.javamoney.moneta.Money;
 
@@ -17,17 +15,15 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @ToString
+@SuperBuilder
 public class Order extends AbstractEntity {
-
-    private long id;
-
     private Client client;
 
     private Address shippingAddress;
 
-    private Map<Long, Item> orderItems;
+    private Map<String, Item> orderItems;
 
-    private Money orderValue;
+    private Double orderValue;
 
     private Date createdOn;
 
@@ -35,9 +31,8 @@ public class Order extends AbstractEntity {
 
     private boolean isDelivered;
 
-    public Order(UUID uniqueId, long id, Client client, Address shippingAddress, Map<Long, Item> orderItems, Money orderValue, Date createdOn, boolean isPaid, boolean isDelivered) {
+    public Order(UUID uniqueId, Client client, Address shippingAddress, Map<String, Item> orderItems, Double orderValue, Date createdOn, boolean isPaid, boolean isDelivered) {
         super(uniqueId);
-        this.id = id;
         this.client = client;
         this.shippingAddress = shippingAddress;
         this.orderItems = orderItems;
@@ -47,13 +42,12 @@ public class Order extends AbstractEntity {
         this.isDelivered = isDelivered;
     }
 
-    public Order(long id, Client client, Address shippingAddress, Map<Long, Item> orderItems, Money orderValue, Date createdOn, boolean isPaid, boolean isDelivered) {
-        this.id = id;
+    public Order(Client client, Address shippingAddress, Map<String, Item> orderItems, Double orderValue, boolean isPaid, boolean isDelivered) {
         this.client = client;
         this.shippingAddress = shippingAddress;
         this.orderItems = orderItems;
         this.orderValue = orderValue;
-        this.createdOn = createdOn;
+        this.createdOn = new Date();
         this.isPaid = isPaid;
         this.isDelivered = isDelivered;
     }
