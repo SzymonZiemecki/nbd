@@ -14,7 +14,7 @@ services:
   environment:
    - MONGO_INITDB_ROOT_USERNAME=nbd
    - MONGO_INITDB_ROOT_PASSWORD=nbdpassword
-  command: --config /etc/mongod.conf
+  #command: --config /etc/mongod.conf
   healthcheck:
    test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
    interval: 10s
@@ -29,8 +29,7 @@ services:
   networks:
    - mongonet
   depends_on:
-   mongo:
-    condition: service_healthy
+   - mongo
   command: >
    mongosh --host mongodb:27017 --username nbd --password nbdpassword --authenticationDatabase admin --eval
    '

@@ -5,15 +5,8 @@ import com.mongodb.MongoClientSettings;
 import com.mongodb.MongoCredential;
 import com.mongodb.client.*;
 import com.mongodb.client.model.Filters;
-import com.mongodb.client.model.Updates;
 import jakarta.persistence.EntityExistsException;
-import org.apache.commons.lang3.NotImplementedException;
-import org.bson.BsonDocument;
-import org.bson.BsonDocumentWriter;
-import org.bson.Document;
 import org.bson.UuidRepresentation;
-import org.bson.codecs.Codec;
-import org.bson.codecs.EncoderContext;
 import org.bson.codecs.configuration.CodecRegistries;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.ClassModel;
@@ -30,7 +23,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public class AbstractMongoRepository<T extends AbstractEntityMgd> implements MongoRepository<T> {
+public class AbstractMongoRepository<T extends AbstractEntityMgd> implements RepositoryIf<T> {
 
     private ConnectionString connectionString = new ConnectionString("mongodb://localhost:27017");
     private MongoCredential credential = MongoCredential.createCredential("nbd", "admin", "nbdpassword".toCharArray());

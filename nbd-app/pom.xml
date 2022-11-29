@@ -80,6 +80,14 @@
             <groupId>org.mongodb</groupId>
             <artifactId>mongodb-crypt</artifactId>
         </dependency>
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse</groupId>
+            <artifactId>yasson</artifactId>
+        </dependency>
 
     </dependencies>
 

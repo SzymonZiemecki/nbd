@@ -8,7 +8,9 @@ import pl.nbd.model.domain.Client;
 import pl.nbd.model.domain.Item;
 import pl.nbd.model.domain.Order;
 import pl.nbd.model.mapper.OrderMapper;
+import pl.nbd.repository.base.OrderRepository;
 import pl.nbd.repository.mongo.OrderMgdRepository;
+import pl.nbd.repository.redis.OrderRedisRepository;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,12 +20,12 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class OrderManagerImpl implements OrderManager {
 
-    private OrderMgdRepository orderRepository;
+    private OrderRepository orderRepository;
     private ClientManager clientManager;
     private ItemManager itemManager;
 
-    public OrderManagerImpl(OrderMgdRepository orderRepository, ItemManager itemManager, ClientManager clientManager) {
-        this.orderRepository = orderRepository;
+    public OrderManagerImpl(ItemManager itemManager, ClientManager clientManager) {
+        this.orderRepository = new OrderRepository(new OrderMgdRepository(), new OrderRedisRepository());
         this.clientManager = clientManager;
         this.itemManager = itemManager;
     }
@@ -41,7 +43,7 @@ public class OrderManagerImpl implements OrderManager {
             processedItems.values().forEach(item -> itemManager.updateItem(item));
             contextClient.setAccountBalance(contextClient.getAccountBalance() - orderValue);
             clientManager.updateClient(contextClient);
-            return OrderMapper.toDomainModel(orderRepository.add(OrderMapper.toMongoDocument(new Order(contextClient, contextClient.getAddress(),processedItems,orderValue,true,false))));
+            return orderRepository.add((new Order(contextClient, contextClient.getAddress(),processedItems,orderValue,true,false)));
 
         } else {
             throw new Exception("failed to create order, violated business logic");
@@ -54,9 +56,9 @@ public class OrderManagerImpl implements OrderManager {
 
     @Override
     public void deliverOrder(UUID id) {
-        Order order = OrderMapper.toDomainModel(orderRepository.findById(id).get());
+        Order order = orderRepository.findById(id).get();
         order.setDelivered(true);
-        orderRepository.update(OrderMapper.toMongoDocument(order));
+        orderRepository.update(order);
     }
 
     private Double calculateOrderValue(Map<Long, Item> items) {

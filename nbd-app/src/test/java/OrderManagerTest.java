@@ -36,10 +36,9 @@ public class OrderManagerTest {
 
     @BeforeEach
     public void before() {
-        orderMgdRepository = new OrderMgdRepository();
         itemManager = new ItemManagerImpl();
         clientManager = new ClientManagerImpl();
-        orderManager = new OrderManagerImpl(orderMgdRepository, itemManager, clientManager);
+        orderManager = new OrderManagerImpl(itemManager, clientManager);
 
     }
 
