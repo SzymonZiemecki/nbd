@@ -45,7 +45,7 @@ public class OrderManagerTest {
 
     @Test
     public void createOrderPositiveTest() throws Exception {
-        Item item = new Laptop(20l, "raz", "dwa", "trzy", 20.0, "raz", 20l, 20l);
+        Item item = new Laptop(20l, "razd", "dwa", "trzy", 20.0, "raz", 20l, 20l);
         item = itemManager.addItem(item);
         Client client = new Client("test", "test", new Address("test", "test", "301"), 100.0, false);
         client = clientManager.addClient(client);

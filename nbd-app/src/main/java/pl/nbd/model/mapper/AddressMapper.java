@@ -6,6 +6,8 @@ import pl.nbd.model.mgd.AddressMgd;
 import pl.nbd.model.mgd.ClientMgd;
 import pl.nbd.model.redis.AddressJson;
 
+import java.util.UUID;
+
 public class AddressMapper {
     public static AddressMgd toMongoDocument(Address address){
         return AddressMgd.builder()
@@ -17,6 +19,9 @@ public class AddressMapper {
     }
 
     public static AddressJson toRedisDocument(Address address){
+        if (address.getUniqueId() == null) {
+            address.setUniqueId(UUID.randomUUID());
+        }
         return AddressJson.builder()
                 .uniqueId(address.getUniqueId())
                 .city(address.getCity())

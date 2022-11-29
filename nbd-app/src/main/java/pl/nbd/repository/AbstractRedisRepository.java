@@ -89,7 +89,7 @@ public class AbstractRedisRepository<T extends AbstractEntityJson> implements Re
 
     @Override
     public void close() throws Exception {
-//        pool.getPool().destroy();
-//        pool.close();
+        pool.getPool().destroy();
+        pool.close();
     }
 }

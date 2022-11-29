@@ -12,6 +12,7 @@ import pl.nbd.model.redis.OrderJson;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class OrderMapper {
 
@@ -40,6 +41,9 @@ public class OrderMapper {
             orderJsonItems.put(key, ItemMapper.toRedisDocument(order.getOrderItems().get(key)));
                 }
         );
+        if (order.getUniqueId() == null) {
+            order.setUniqueId(UUID.randomUUID());
+        }
         return OrderJson.builder()
                 .uniqueId(order.getUniqueId())
                 .client(ClientMapper.toRedisDocument(order

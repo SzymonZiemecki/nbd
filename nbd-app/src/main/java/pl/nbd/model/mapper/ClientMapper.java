@@ -4,6 +4,8 @@ import pl.nbd.model.domain.Client;
 import pl.nbd.model.mgd.ClientMgd;
 import pl.nbd.model.redis.ClientJson;
 
+import java.util.UUID;
+
 public class ClientMapper {
 
     public static ClientMgd toMongoDocument(Client client){
@@ -18,6 +20,9 @@ public class ClientMapper {
     }
 
     public static ClientJson toRedisDocument(Client client){
+        if (client.getUniqueId() == null) {
+            client.setUniqueId(UUID.randomUUID());
+        }
         return ClientJson.builder()
                 .uniqueId(client.getUniqueId())
                 .name(client.getName())

@@ -14,6 +14,7 @@ import pl.nbd.model.redis.MonitorJson;
 import pl.nbd.repository.redis.ItemRedisRepository;
 
 import javax.swing.text.Document;
+import java.util.UUID;
 
 public class ItemMapper {
 
@@ -72,6 +73,9 @@ public class ItemMapper {
     }
 
     public static ItemJson laptopToRedisDocument(Laptop item){
+        if (item.getUniqueId() == null) {
+            item.setUniqueId(UUID.randomUUID());
+        }
         return LaptopJson.builder()
                 .uniqueId(item.getUniqueId())
                 .availableAmount(item.getAvailableAmount())
@@ -100,6 +104,9 @@ public class ItemMapper {
     }
 
     public static ItemJson monitorToRedisDocument(Monitor item){
+        if (item.getUniqueId() == null) {
+            item.setUniqueId(UUID.randomUUID());
+        }
         return MonitorJson.builder()
                 .uniqueId(item.getUniqueId())
                 .availableAmount(item.getAvailableAmount())
