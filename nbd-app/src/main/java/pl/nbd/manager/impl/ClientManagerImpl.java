@@ -1,57 +1,38 @@
 package pl.nbd.manager.impl;
 
+import jakarta.persistence.EntityNotFoundException;
 import pl.nbd.manager.ClientManager;
 import pl.nbd.model.domain.Client;
-import pl.nbd.model.domain.Order;
-import pl.nbd.model.mapper.ClientMapper;
-import pl.nbd.repository.mongo.ClientMgdRepository;
+import pl.nbd.repository.cassandra.ClientRepository;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 public class ClientManagerImpl implements ClientManager {
-    private ClientMgdRepository clientRepository;
-
-    public ClientManagerImpl() {
-        this.clientRepository = new ClientMgdRepository();
-    }
+    private ClientRepository clientRepository;
 
     @Override
     public Client addClient(Client client) {
-        return ClientMapper.toDomainModel(clientRepository.add(ClientMapper.toMongoDocument(client)));
+        return clientRepository.add(client);
     }
 
     @Override
-    public Client updateClient(Client client){
-        return ClientMapper.toDomainModel(clientRepository.update(ClientMapper.toMongoDocument(client)));
+    public Client updateClient(Client client) {
+        return clientRepository.update(client);
     }
 
     @Override
     public void deleteClient(Client client) {
-        clientRepository.remove(ClientMapper.toMongoDocument(client));
+        clientRepository.remove(client);
     }
 
     @Override
-    public List<Client> findAllClients(){
-        List<Client> clients = new ArrayList<>();
-        clientRepository.findAll().stream().forEach(client -> clients.add(ClientMapper.toDomainModel(client)));
-        return clients;
+    public List<Client> findAllClients() {
+        return null;
     }
 
     @Override
-    public Optional<Client> findClientsById(UUID id){
-        return Optional.of(ClientMapper.toDomainModel(clientRepository.findById(id).get()));
+    public Client findClientsById(UUID id) {
+        return clientRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("entity not found"));
     }
-
-/*    @Override
-    public List<Client> findByClientsByName(String name) {
-        return clientRepository.findClientByName(name);
-    }
-
-    @Override
-    public List<Order> findClientOrders(UUID id) {
-        return clientRepository.findClientOrders(clientRepository.findById(id));
-    }*/
 }

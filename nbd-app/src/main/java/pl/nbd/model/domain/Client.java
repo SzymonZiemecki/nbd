@@ -1,9 +1,11 @@
 package pl.nbd.model.domain;
 
+import com.datastax.oss.driver.api.mapper.annotations.ClusteringColumn;
+import com.datastax.oss.driver.api.mapper.annotations.CqlName;
+import com.datastax.oss.driver.api.mapper.annotations.Entity;
+import com.datastax.oss.driver.api.mapper.annotations.PropertyStrategy;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.bson.codecs.pojo.annotations.BsonCreator;
-import org.bson.codecs.pojo.annotations.BsonProperty;
 
 import java.util.UUID;
 
@@ -12,6 +14,10 @@ import java.util.UUID;
 @NoArgsConstructor
 @ToString
 @SuperBuilder
+@Entity
+@CqlName("clients")
+@PropertyStrategy(mutable = false)
+@EqualsAndHashCode
 public class Client extends AbstractEntity {
     private String name;
 
@@ -21,7 +27,8 @@ public class Client extends AbstractEntity {
 
     private Double accountBalance;
 
-    private boolean isSuspened;
+    @CqlName("is_suspended")
+    private boolean suspened;
 
 
     public Client(UUID uniqueId, String name, String surname, Address address, Double accountBalance, boolean isSuspened) {
@@ -30,7 +37,7 @@ public class Client extends AbstractEntity {
         this.surname = surname;
         this.address = address;
         this.accountBalance = accountBalance;
-        this.isSuspened = isSuspened;
+        this.suspened = isSuspened;
     }
 
     public Client(String name, String surname, Address address, Double accountBalance, boolean isSuspened) {
@@ -38,6 +45,6 @@ public class Client extends AbstractEntity {
         this.surname = surname;
         this.address = address;
         this.accountBalance = accountBalance;
-        this.isSuspened = isSuspened;
+        this.suspened = isSuspened;
     }
 }

@@ -1,3 +1,4 @@
+/*
 package pl.nbd.manager.impl;
 
 import pl.nbd.manager.ClientManager;
@@ -90,3 +91,4 @@ public class OrderManagerImpl implements OrderManager {
         return updatedItems;
     }
 }
+*/

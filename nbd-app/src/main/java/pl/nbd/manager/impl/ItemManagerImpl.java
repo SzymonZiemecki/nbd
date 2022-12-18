@@ -1,3 +1,4 @@
+/*
 package pl.nbd.manager.impl;
 
 import pl.nbd.manager.ItemManager;
@@ -47,3 +48,4 @@ public class ItemManagerImpl implements ItemManager {
     }
 
 }
+*/

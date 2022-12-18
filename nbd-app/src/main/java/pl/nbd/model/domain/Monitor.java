@@ -1,5 +1,10 @@
 package pl.nbd.model.domain;
 
+import com.datastax.oss.driver.api.mapper.annotations.CqlName;
+import com.datastax.oss.driver.api.mapper.annotations.Entity;
+import com.datastax.oss.driver.api.mapper.annotations.NamingStrategy;
+import com.datastax.oss.driver.api.mapper.annotations.PropertyStrategy;
+import com.datastax.oss.driver.api.mapper.entity.naming.NamingConvention;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -11,7 +16,12 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @ToString
+@EqualsAndHashCode
 @SuperBuilder
+@Entity(defaultKeyspace = "shop_app")
+@PropertyStrategy(mutable = false)
+@CqlName("items")
+@NamingStrategy(convention = NamingConvention.SNAKE_CASE_INSENSITIVE)
 public class Monitor extends Item {
     private String resolution;
 
@@ -19,14 +29,15 @@ public class Monitor extends Item {
 
     private String diagonal;
 
-    public Monitor(String resolution, String panel, String diagonal) {
+    public Monitor(UUID uniqueId, long availableAmount, String name, String producer, String description, Double price, Boolean available, String discriminator, String resolution, String panel, String diagonal) {
+        super(uniqueId, availableAmount, name, producer, description, price, available, "monitor");
         this.resolution = resolution;
         this.panel = panel;
         this.diagonal = diagonal;
     }
 
-    public Monitor(long availableAmount, String name, String producer, String description, Double price, String resolution, String panel, String diagonal) {
-        super(availableAmount, name, producer, description, price);
+    public Monitor(UUID uniqueId, String resolution, String panel, String diagonal, long availableAmount, String name, String producer, String description, Double price, boolean available, String discriminator) {
+        super(uniqueId, availableAmount, name, producer, description, price, available, "monitor");
         this.resolution = resolution;
         this.panel = panel;
         this.diagonal = diagonal;

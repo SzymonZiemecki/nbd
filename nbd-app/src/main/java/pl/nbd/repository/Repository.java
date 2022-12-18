@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface MongoRepository<T> extends AutoCloseable {
+public interface Repository<T> extends AutoCloseable {
 
     Optional<T> findById(UUID id);
 

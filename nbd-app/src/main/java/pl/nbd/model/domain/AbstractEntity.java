@@ -1,5 +1,6 @@
 package pl.nbd.model.domain;
 
+import com.datastax.oss.driver.api.mapper.annotations.PartitionKey;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -12,5 +13,6 @@ import java.util.UUID;
 @AllArgsConstructor
 @SuperBuilder
 public abstract class AbstractEntity implements Serializable {
+    @PartitionKey
     protected UUID uniqueId;
 }

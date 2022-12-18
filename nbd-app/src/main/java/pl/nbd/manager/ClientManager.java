@@ -16,7 +16,7 @@ public interface ClientManager {
 
     List<Client> findAllClients();
 
-    Optional<Client> findClientsById(UUID id);
+    Client findClientsById(UUID id);
 
 /*    List<Client> findByClientsByName(String name);
 

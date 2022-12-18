@@ -98,16 +98,12 @@
                 <version>3.12.0</version>
             </dependency>
             <dependency>
-                <groupId>org.mongodb</groupId>
-                <artifactId>mongodb-driver-sync</artifactId>
-                <version>4.7.2</version>
+                <groupId>com.datastax.oss</groupId>
+                <artifactId>java-driver-bom</artifactId>
+                <version>4.15.0</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
-            <dependency>
-                <groupId>org.mongodb</groupId>
-                <artifactId>mongodb-crypt</artifactId>
-                <version>1.5.2</version>
-            </dependency>
-
         </dependencies>
     </dependencyManagement>
 
