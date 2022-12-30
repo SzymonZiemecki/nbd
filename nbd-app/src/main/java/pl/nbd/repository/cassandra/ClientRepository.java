@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public class ClientRepository implements Repository<Client> {
+public class ClientRepository extends AbstractCassandraRepository implements Repository<Client>{
 
     private static final CqlIdentifier SHOP_APP_NAMESPACE = CqlIdentifier.fromCql("shop_app");
     private static final CqlIdentifier UNIQUIE_ID = CqlIdentifier.fromCql("unique_id");
@@ -28,24 +28,6 @@ public class ClientRepository implements Repository<Client> {
     private static final CqlIdentifier ADDRESS = CqlIdentifier.fromCql("address");
     private static final CqlIdentifier ACCOUNT_BALANCE = CqlIdentifier.fromCql("account_balance");
     private static final CqlIdentifier IS_SUSPENDED = CqlIdentifier.fromCql("is_suspended");
-    private static CqlSession session;
-
-    public void initSession(){
-        session = CqlSession.builder()
-                .addContactPoint(new InetSocketAddress("localhost", 9042))
-                .addContactPoint(new InetSocketAddress("localhost", 9043))
-                .withLocalDatacenter("dc1")
-                .withAuthCredentials("cassandra", "cassandra")
-                .build();
-        session.execute(SchemaBuilder.createKeyspace(SHOP_APP_NAMESPACE)
-                .ifNotExists()
-                .withSimpleStrategy(2)
-                .withDurableWrites(true)
-                .build());
-        MutableCodecRegistry registry = (MutableCodecRegistry) session.getContext().getCodecRegistry();
-        registry.register(new AddressCodec());
-    }
-
     public void createTable(){
         SimpleStatement createTableIfNotExists =
                 SchemaBuilder.createTable("shop_app","clients")

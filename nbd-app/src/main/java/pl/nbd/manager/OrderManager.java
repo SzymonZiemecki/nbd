@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.UUID;
 
 public interface OrderManager {
-    Order createOrder(Client client, Address orderAddress, Map<Long, Item> items) throws Exception;
+    Order createOrder(Client client, Address orderAddress, Map<UUID, Long> items) throws Exception;
 
     String report(UUID orderId);
 

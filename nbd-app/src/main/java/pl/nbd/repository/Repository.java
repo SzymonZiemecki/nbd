@@ -6,7 +6,7 @@ import java.util.UUID;
 
 public interface Repository<T> extends AutoCloseable {
 
-    Optional<T> findById(UUID id);
+    Optional<T> findById(UUID clientId);
 
     T add(T entity);
 

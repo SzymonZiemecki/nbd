@@ -3,6 +3,8 @@ package pl.nbd.model.domain;
 import com.datastax.oss.driver.api.mapper.annotations.CqlName;
 import com.datastax.oss.driver.api.mapper.annotations.Entity;
 import com.datastax.oss.driver.api.mapper.annotations.PropertyStrategy;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -20,6 +22,12 @@ import java.util.UUID;
 @Entity(defaultKeyspace = "shop_app")
 @PropertyStrategy(mutable = false)
 @CqlName("items")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = Monitor.class, name = "Monitor"),
+
+        @JsonSubTypes.Type(value = Laptop.class, name = "Laptop") }
+)
 public class Item extends AbstractEntity {
     @CqlName("available_amount")
     private long availableAmount;

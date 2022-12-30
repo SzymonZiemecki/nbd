@@ -11,6 +11,10 @@ import java.util.UUID;
 public class ClientManagerImpl implements ClientManager {
     private ClientRepository clientRepository;
 
+    public ClientManagerImpl(ClientRepository clientRepository) {
+        this.clientRepository = clientRepository;
+    }
+
     @Override
     public Client addClient(Client client) {
         return clientRepository.add(client);
@@ -32,7 +36,7 @@ public class ClientManagerImpl implements ClientManager {
     }
 
     @Override
-    public Client findClientsById(UUID id) {
+    public Client findClientById(UUID id) {
         return clientRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("entity not found"));
     }
 }

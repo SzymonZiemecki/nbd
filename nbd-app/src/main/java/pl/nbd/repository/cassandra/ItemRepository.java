@@ -22,23 +22,7 @@ import java.util.UUID;
 import static pl.nbd.Ids.ItemIds.SHOP_APP_NAMESPACE;
 import static pl.nbd.Ids.ItemIds.UNIQUIE_ID;
 
-public class ItemRepository implements Repository<Item> {
-    private static CqlSession session;
-
-    public void initSession(){
-        session = CqlSession.builder()
-                .addContactPoint(new InetSocketAddress("localhost", 9042))
-                .addContactPoint(new InetSocketAddress("localhost", 9043))
-                .withLocalDatacenter("dc1")
-                .withAuthCredentials("cassandra", "cassandra")
-                .build();
-        session.execute(SchemaBuilder.createKeyspace(SHOP_APP_NAMESPACE)
-                .ifNotExists()
-                .withSimpleStrategy(2)
-                .withDurableWrites(true)
-                .build());
-    }
-
+public class ItemRepository extends AbstractCassandraRepository implements Repository<Item> {
     public void createTable(){
         SimpleStatement createTableIfNotExists =
                 SchemaBuilder.createTable("shop_app","items")

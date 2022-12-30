@@ -1,4 +1,3 @@
-/*
 package pl.nbd.manager.impl;
 
 import pl.nbd.manager.ClientManager;
@@ -8,41 +7,44 @@ import pl.nbd.model.domain.Address;
 import pl.nbd.model.domain.Client;
 import pl.nbd.model.domain.Item;
 import pl.nbd.model.domain.Order;
-import pl.nbd.model.mapper.OrderMapper;
-import pl.nbd.repository.mongo.OrderMgdRepository;
+import pl.nbd.repository.cassandra.OrderRepository;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 public class OrderManagerImpl implements OrderManager {
 
-    private OrderMgdRepository orderRepository;
+    private OrderRepository orderRepository;
     private ClientManager clientManager;
     private ItemManager itemManager;
 
-    public OrderManagerImpl(OrderMgdRepository orderRepository, ItemManager itemManager, ClientManager clientManager) {
+    public OrderManagerImpl(OrderRepository orderRepository, ItemManager itemManager, ClientManager clientManager) {
         this.orderRepository = orderRepository;
         this.clientManager = clientManager;
         this.itemManager = itemManager;
     }
 
     @Override
-    public Order createOrder(Client client, Address orderAddress, Map<Long, Item> items) throws Exception {
-        Client contextClient = clientManager.findClientsById(client.getUniqueId()).get();
+    public Order createOrder(Client client, Address orderAddress, Map<UUID, Long> items) throws Exception {
+        Client contextClient = clientManager.findClientById(client.getUniqueId());
         Double clientAccountBalance = contextClient.getAccountBalance();
-        Double orderValue = calculateOrderValue(items);
 
-        if (isEnoughItems(items)
-            && (clientAccountBalance - orderValue >= 0)
-            && !contextClient.isSuspened()) {
-            Map<String, Item> processedItems = processItems(items);
-            processedItems.values().forEach(item -> itemManager.updateItem(item));
+        Map<Item,Long> resolvedItems = toItemMap(items);
+
+        Double orderValue = calculateOrderValue(resolvedItems);
+
+        if (isEnoughItems(resolvedItems)
+                && (clientAccountBalance - orderValue >= 0)
+                && !contextClient.isSuspened()) {
+            Map<Item, Long> processedItems = processItems(resolvedItems);
+            processedItems.keySet().forEach(item -> itemManager.updateItem(item));
             contextClient.setAccountBalance(contextClient.getAccountBalance() - orderValue);
             clientManager.updateClient(contextClient);
-            return OrderMapper.toDomainModel(orderRepository.add(OrderMapper.toMongoDocument(new Order(contextClient, contextClient.getAddress(),processedItems,orderValue,true,false))));
+            return orderRepository.add(new Order(contextClient.getUniqueId(), contextClient.getAddress(),toUuidMap(processedItems),orderValue,true,false));
 
         } else {
             throw new Exception("failed to create order, violated business logic");
@@ -55,40 +57,49 @@ public class OrderManagerImpl implements OrderManager {
 
     @Override
     public void deliverOrder(UUID id) {
-        Order order = OrderMapper.toDomainModel(orderRepository.findById(id).get());
+        Order order = orderRepository.findById(id).get();
         order.setDelivered(true);
-        orderRepository.update(OrderMapper.toMongoDocument(order));
+        orderRepository.update(order);
     }
 
-    private Double calculateOrderValue(Map<Long, Item> items) {
+    private Double calculateOrderValue(Map<Item, Long> items) {
         AtomicReference<Double> orderValue = new AtomicReference<>((double) 0);
-        items.keySet().forEach(key -> {
-            orderValue.updateAndGet(v -> new Double((double) (v + key * items.get(key).getPrice())));
+        items.forEach((key,value) -> {
+            orderValue.updateAndGet(v -> (double) (v + key.getPrice() * value));
         });
         return orderValue.get();
     }
 
-    private boolean isEnoughItems(Map<Long, Item> items) {
+    private boolean isEnoughItems(Map<Item, Long> items) {
         AtomicBoolean flag = new AtomicBoolean(true);
         items.forEach((key, value) -> {
-            if (value.getAvailableAmount() - key < 0)
+            if (key.getAvailableAmount() - value < 0)
                 flag.set(false);
         });
         return flag.get();
     }
 
-    private Map<String, Item> processItems(Map<Long, Item> items) {
-        Map<String, Item> updatedItems = new HashMap<>();
+    private Map<Item, Long> processItems(Map<Item, Long> items) {
+        Map<Item, Long> updatedItems = new HashMap<>();
         items.forEach((key, value) -> {
-            value.setAvailableAmount(value.getAvailableAmount() - key);
-            if (value.getAvailableAmount() > 0) {
-                value.setAvailable(true);
+            key.setAvailableAmount(key.getAvailableAmount() - value);
+            if (key.getAvailableAmount() > 0) {
+                key.setAvailable(true);
             } else {
-                value.setAvailable(false);
+                key.setAvailable(false);
             }
-            updatedItems.put(String.valueOf(key), value);
+            updatedItems.put(key, value);
         });
         return updatedItems;
     }
+
+    private Map<UUID, Long> toUuidMap(Map<Item, Long> items){
+        return items.entrySet().stream()
+                .collect(Collectors.toMap(entry -> entry.getKey().getUniqueId(), Map.Entry::getValue));
+    }
+
+    private Map<Item, Long> toItemMap(Map<UUID, Long> items){
+        return items.entrySet().stream()
+                .collect(Collectors.toMap(entry -> itemManager.findItemById(entry.getKey()), Map.Entry::getValue));
+    }
 }
-*/

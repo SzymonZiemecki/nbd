@@ -16,6 +16,6 @@ public interface ItemManager {
 
     List<Item> findAllItems();
 
-    Optional<Item> findItemById(UUID id);
+    Item findItemById(UUID id);
 
 }
