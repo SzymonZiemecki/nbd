@@ -1,5 +1,7 @@
 package pl.nbd.repository;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.MongoCredential;
@@ -8,6 +10,9 @@ import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
 import jakarta.persistence.EntityExistsException;
 import org.apache.commons.lang3.NotImplementedException;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.RecordMetadata;
+import org.apache.kafka.common.errors.TopicExistsException;
 import org.bson.BsonDocument;
 import org.bson.BsonDocumentWriter;
 import org.bson.Document;
@@ -20,15 +25,26 @@ import org.bson.codecs.pojo.ClassModel;
 import org.bson.codecs.pojo.Conventions;
 import org.bson.codecs.pojo.PojoCodecProvider;
 import org.bson.conversions.Bson;
+import pl.nbd.model.domain.Order;
 import pl.nbd.model.mgd.AbstractEntityMgd;
 import pl.nbd.model.mgd.ItemMgd;
 import pl.nbd.model.mgd.LaptopMgd;
 import pl.nbd.model.mgd.MonitorMgd;
+import pl.nbd.repository.kafka.Producer;
+import pl.nbd.repository.kafka.Topics;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static pl.nbd.repository.kafka.Producer.getProducer;
 
 public class AbstractMongoRepository<T extends AbstractEntityMgd> implements MongoRepository<T> {
 
@@ -47,8 +63,31 @@ public class AbstractMongoRepository<T extends AbstractEntityMgd> implements Mon
 
     public AbstractMongoRepository(Class<T> clazz, String collectionName) {
         this.clazz = clazz;
+        Topics.createTopic();
         this.collectionName = collectionName;
         initDbConnection();
+        Producer.initProducer();
+    }
+
+    public void send(T order) {
+        try {
+            ProducerRecord<UUID, String> record = new ProducerRecord<>(Topics.CLIENT_TOPIC,
+                    order.getUniqueId(), new ObjectMapper().writeValueAsString(order) +" ZiemeckiOrder " + LocalDateTime.now().toString());
+
+            System.out.println("\nrecord:toString()");
+            System.out.println(record.toString());
+            System.out.println("\n");
+
+            Future<RecordMetadata> sent = getProducer().send(record);
+            RecordMetadata recordMetadata = sent.get();
+        } catch (ExecutionException ee) {
+            System.out.println(ee.getCause());
+            assertThat(ee.getCause(), is(instanceOf(TopicExistsException.class)));
+        } catch (InterruptedException ie) {
+            System.out.println(ie.getCause());
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void initDbConnection() {
@@ -92,6 +131,9 @@ public class AbstractMongoRepository<T extends AbstractEntityMgd> implements Mon
             throw new EntityExistsException("Entity with provided UUID alredy exists in databse");
         }
         collection.insertOne(entity);
+        if(clazz.getSimpleName().equals("Order")){
+            send(entity);
+        }
         return entity;
     }
 
