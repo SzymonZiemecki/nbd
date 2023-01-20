@@ -9,6 +9,7 @@ import com.mongodb.client.*;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
 import jakarta.persistence.EntityExistsException;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
@@ -46,6 +47,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static pl.nbd.repository.kafka.Producer.getProducer;
 
+@Slf4j
 public class AbstractMongoRepository<T extends AbstractEntityMgd> implements MongoRepository<T> {
 
     private ConnectionString connectionString = new ConnectionString("mongodb://localhost:27017");
@@ -72,19 +74,15 @@ public class AbstractMongoRepository<T extends AbstractEntityMgd> implements Mon
     public void send(T order) {
         try {
             ProducerRecord<UUID, String> record = new ProducerRecord<>(Topics.CLIENT_TOPIC,
-                    order.getUniqueId(), new ObjectMapper().writeValueAsString(order) +" ZiemeckiOrder " + LocalDateTime.now().toString());
-
-            System.out.println("\nrecord:toString()");
-            System.out.println(record.toString());
-            System.out.println("\n");
-
+                    order.getUniqueId(), new ObjectMapper().writeValueAsString(order) +" " + LocalDateTime.now().toString());
+            log.info("record: {}", record.toString());
             Future<RecordMetadata> sent = getProducer().send(record);
             RecordMetadata recordMetadata = sent.get();
         } catch (ExecutionException ee) {
-            System.out.println(ee.getCause());
+            log.error(String.valueOf(ee.getCause()));
             assertThat(ee.getCause(), is(instanceOf(TopicExistsException.class)));
         } catch (InterruptedException ie) {
-            System.out.println(ie.getCause());
+            log.error(String.valueOf(ie.getCause()));
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
@@ -109,7 +107,7 @@ public class AbstractMongoRepository<T extends AbstractEntityMgd> implements Mon
                 )).build();
         mongoClient = MongoClients.create(settings);
         mongoDb = mongoClient.getDatabase("test");
-        System.out.println("connected");
+        log.info("connected");
     }
 
 
@@ -131,7 +129,8 @@ public class AbstractMongoRepository<T extends AbstractEntityMgd> implements Mon
             throw new EntityExistsException("Entity with provided UUID alredy exists in databse");
         }
         collection.insertOne(entity);
-        if(clazz.getSimpleName().equals("Order")){
+        log.info("inserted entity with id {}", entity.getUniqueId());
+        if(clazz.getSimpleName().equals("OrderMgd")){
             send(entity);
         }
         return entity;
@@ -170,7 +169,6 @@ public class AbstractMongoRepository<T extends AbstractEntityMgd> implements Mon
 
     @Override
     public void close() throws Exception {
-        mongoClient.getDatabase("test").drop();
         mongoClient.close();
     }
 }

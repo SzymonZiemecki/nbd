@@ -1,5 +1,6 @@
 package pl.nbd.repository.kafka;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.admin.*;
 import org.apache.kafka.common.KafkaFuture;
 import org.apache.kafka.common.errors.TopicExistsException;
@@ -15,6 +16,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@Slf4j
 public class Topics {
     public static final String CONSUMER_GROUP_NAME = "ConsumerGroup";
     public static final String CLIENT_TOPIC = "orders";
@@ -34,7 +36,7 @@ public class Topics {
             KafkaFuture<Void> futureResult = result.values().get(Topics.CLIENT_TOPIC);
             futureResult.get();
         } catch (ExecutionException ee) {
-            System.out.println(ee.getCause());
+            log.info(String.valueOf(ee.getCause()));
             Assert.assertThat(ee.getCause(), is(CoreMatchers.instanceOf(TopicExistsException.class)));
         } catch (InterruptedException e) {
             e.printStackTrace();

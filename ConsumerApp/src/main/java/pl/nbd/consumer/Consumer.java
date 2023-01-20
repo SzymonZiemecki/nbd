@@ -1,6 +1,7 @@
 package pl.nbd.consumer;
 
 import com.mongodb.client.MongoCollection;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.admin.Admin;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.admin.ConsumerGroupDescription;
@@ -24,6 +25,7 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+@Slf4j
 public class Consumer extends AbstractMongoRepository {
 
     public static KafkaConsumer<UUID, String> getKafkaConsumer() {
@@ -49,18 +51,20 @@ public class Consumer extends AbstractMongoRepository {
         consumerConfig.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka1:9192, kafka2:9292, kafka3:9392");
 
         super.initDbConnection();
-        recordCollection = mongoDatabase.getCollection("consumerRecords", Record.class);
+        recordCollection = mongoDatabase.getCollection("records", Record.class);
         recordCollection.drop();
-        kafkaConsumer = new KafkaConsumer<UUID, String>(consumerConfig);
-        kafkaConsumer.subscribe(List.of(Topics.CLIENT_TOPIC));
+        for(int i = 0 ; i < 2; i++){
+            kafkaConsumer = new KafkaConsumer<UUID, String>(consumerConfig);
+            kafkaConsumer.subscribe(List.of(Topics.CLIENT_TOPIC));
+            consumerGroup.add(kafkaConsumer);
+        }
     }
 
     public void consume(KafkaConsumer<UUID, String> consumer) {
         try {
             consumer.poll(0);
             Set<TopicPartition> consumerAssignment = consumer.assignment();
-            System.out.println(consumer.groupMetadata().memberId() + " " + consumerAssignment);
-            //consumer.seekToBeginning(consumerAssignment);
+            log.info(consumer.groupMetadata().memberId() + " " + consumerAssignment);
 
             Duration timeout = Duration.of(100, ChronoUnit.MILLIS);
             MessageFormat formatter = new MessageFormat("Konsument {5},Temat {0}, partycja {1}, offset {2, number, integer}, klucz {3}, wartość {4}");
@@ -87,7 +91,7 @@ public class Consumer extends AbstractMongoRepository {
                 }
             }
         } catch (WakeupException we) {
-            System.out.println("Job Finished");
+            log.info("Job Finished");
         }
     }
 
